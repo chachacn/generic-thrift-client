@@ -20,21 +20,34 @@ namespace Client
         public string SERVICE_NAME = "ThriftTest";
 
         GenericClient genericAnalyser = new TGenericClient();
-        public TTransport transport;
+        TTransport transport;
         TProtocol protocol;
-
+        PoolManager pool;
+        ThriftPool thriftpool;
         public TestThrift()
         {
+            /*
             transport = new TFramedTransport(new TSocket(SERVER_IP, SERVER_PORT, TIMEOUT));
             // 协议要和服务端一致
             // TBinaryProtocol
             // TJSONProtocol
 
             protocol = new TBinaryProtocol(transport);
-            
+            */
+
+            pool = new PoolManager(SERVER_IP, SERVER_PORT);
+            thriftpool = pool.Get();
+            transport = thriftpool.transport;
+            protocol = thriftpool.protocol;
+
+
             SERVICE_NAME += ":";
         }
-               
+        public void Close()
+        {
+            pool.Return(thriftpool);
+        }
+
 
         public void secondtestString()
         {
@@ -89,7 +102,7 @@ namespace Client
             // 参数值
             List<Object> inputVals = new List<object>();
             inputVals.Add(Encoding.UTF8.GetString(thing));
-            
+
             //出参
             GenericTree output = new GenericTree();
             output.setParamType(TypeEnum.PRIMITIVE_TYPE);
@@ -159,7 +172,7 @@ namespace Client
             // 参数值
             List<Object> inputVals = new List<object>();
             inputVals.Add(thing);
-            
+
             //出参
             GenericTree output = new GenericTree();
             output.setParamType(TypeEnum.PRIMITIVE_TYPE);
@@ -177,7 +190,7 @@ namespace Client
             object obj = genericAnalyser.syncProcess(protocol, genericNode);
 
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(obj));
-            
+
         }
 
         public void testDouble(double thing)
@@ -268,7 +281,7 @@ namespace Client
 
             //出参
             GenericTree output = null;
-            
+
             string method = SERVICE_NAME + "testException";
 
             GenericNode genericNode = new GenericNode();
@@ -276,7 +289,7 @@ namespace Client
             genericNode.setMethodName(method);
             genericNode.setValues(inputVals);
             genericNode.setOutput(output);
-            
+
 
             object obj = genericAnalyser.syncProcess(protocol, genericNode);
 
@@ -312,11 +325,11 @@ namespace Client
             genericNode.setMethodName(method);
             genericNode.setValues(inputVals);
             genericNode.setOutput(output);
-            
+
             object obj = genericAnalyser.syncProcess(protocol, genericNode);
 
             // Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(obj));
-            
+
         }
 
         public void testI64(long thing)
@@ -362,7 +375,7 @@ namespace Client
             input1.setName("argument");
             input1.setParamType(TypeEnum.SYNTHETIC_TYPE);
             input1.setThrfitType("STRUCT");
-                        
+
             Dictionary<string, GenericTree> insanity = new Dictionary<string, GenericTree>();
 
             GenericTree userMap = new GenericTree();
@@ -380,7 +393,7 @@ namespace Client
 
 
             input1.setChildren(insanity);
-            
+
 
             List<GenericTree> inputGenericTrees = new List<GenericTree>
             {
@@ -523,7 +536,7 @@ namespace Client
             genericNode.setOutput(output);
 
             object obj = genericAnalyser.syncProcess(protocol, genericNode);
-            
+
             // Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(obj));
 
         }
@@ -534,7 +547,7 @@ namespace Client
             input1.setName("thing");
             input1.setParamType(TypeEnum.COLLECTION_TYPE);
             input1.setThrfitType("MAP");
-            
+
             GenericTree innerKey = new GenericTree();
             innerKey.setName("thing1");
             innerKey.setParamType(TypeEnum.PRIMITIVE_TYPE);
@@ -612,7 +625,7 @@ namespace Client
         public void testMulti(sbyte arg0, int arg1, long arg2, Dictionary<short, string> arg3, Numberz arg4, long arg5)
         {
             // 返回 Xtruct
-            
+
             GenericTree _arg0 = new GenericTree();
             _arg0.setName("arg0");
             _arg0.setParamType(TypeEnum.PRIMITIVE_TYPE);
@@ -698,11 +711,11 @@ namespace Client
             prop14.setParamType(TypeEnum.PRIMITIVE_TYPE);
             prop14.setThrfitType("I64");
             prop14.setParent(input2);
-            
+
 
             // 参数值
             List<Object> inputVals = new List<object>();
-         
+
 
             inputVals.Add(arg0);
             inputVals.Add(arg1);
@@ -724,7 +737,7 @@ namespace Client
 
             object obj = genericAnalyser.syncProcess(protocol, genericNode);
 
-            // Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(obj));
+             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(obj));
 
         }
 
@@ -753,7 +766,7 @@ namespace Client
             prop1.setParamType(TypeEnum.PRIMITIVE_TYPE);
             prop1.setThrfitType("SBYTE");
             prop1.setParent(input1);
-                        
+
             GenericTree prop2 = new GenericTree();
             prop2.setName("Xstruct_thing");
             prop2.setParamType(TypeEnum.SYNTHETIC_TYPE);
@@ -784,7 +797,7 @@ namespace Client
             prop34.setParamType(TypeEnum.PRIMITIVE_TYPE);
             prop34.setThrfitType("I64");
             prop34.setParent(prop2);
-            
+
             prop2.setParent(input1);
 
 
@@ -815,7 +828,7 @@ namespace Client
                 ,{ "I64_thing",thing.Struct_thing.I64_thing }};
 
             inputVals.Add(xstruct2);
- 
+
 
             string method = SERVICE_NAME + "testNest";
 
@@ -829,7 +842,7 @@ namespace Client
 
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(obj));
         }
-        
+
         /*
         public THashSet<int> testSet(THashSet<int> thing)
         {
@@ -846,12 +859,12 @@ namespace Client
             input1.setParamType(TypeEnum.SYNTHETIC_TYPE);
             input1.setThrfitType("STRUCT");
             input1.setType("Xtruct");
-            
+
             GenericTree prop1 = new GenericTree();
             prop1.setName("String_thing");
             prop1.setParamType(TypeEnum.PRIMITIVE_TYPE);
             prop1.setThrfitType("STRING");
-            
+
             GenericTree prop2 = new GenericTree();
             prop2.setName("Byte_thing");
             prop2.setParamType(TypeEnum.PRIMITIVE_TYPE);
@@ -880,7 +893,7 @@ namespace Client
             {
                 input1
             };
-            
+
             GenericTree input2 = new GenericTree();
             input2.setName("thing");
             input2.setParamType(TypeEnum.SYNTHETIC_TYPE);
@@ -917,24 +930,24 @@ namespace Client
             children2.Add("I64_thing", prop14);
 
             input2.setChildren(children2);
-            
+
 
             // 参数值
             List<Object> inputVals = new List<object>();
 
-                        
-            
+
+
             Dictionary<string, object> row = new Dictionary<string, object>();
 
             row.Add("String_thing", "stringValue3");
             row.Add("Byte_thing", Convert.ToSByte(127));
             row.Add("I32_thing", 99999);
             row.Add("I64_thing", 9999900001111);
-            
+
             inputVals.Add(row);
 
             //出参
-            
+
 
             string method = SERVICE_NAME + "testStruct";
 
@@ -946,9 +959,9 @@ namespace Client
 
             object obj = genericAnalyser.syncProcess(protocol, genericNode);
 
-            // Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(obj));
+            Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(obj));
         }
-         
+
 
     }
 }

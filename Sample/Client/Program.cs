@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using Thrift.Protocol;
 using Thrift.Transport;
 
@@ -55,7 +56,6 @@ namespace Client
 
 
             TestThrift test = new TestThrift();
-            test.transport.Open();
 
             // test.testBinary(System.Text.Encoding.UTF8.GetBytes("xiejianjun"));
 
@@ -109,7 +109,54 @@ namespace Client
             test.testMulti(0, 1, 2, row, Thrift.Test.Numberz.FIVE, 5);
 
 
+            /*
             for (int j = 0; j < 10; j++)
+            {
+
+                DateTime dt = DateTime.Now;
+                for (int i = 0; i < 10000; i++)
+                {
+                    // test.testI32(33);
+                    // test.testMap(new Dictionary<int, int> { { 1, 3 }, { 3, 5 } });
+                    // test.testStruct();
+
+                    TestThrift test2 = new TestThrift();
+
+                    test2.testMulti(0, 1, 2, row, Thrift.Test.Numberz.FIVE, 5);
+
+                    test2.Close();
+
+                }
+                Console.WriteLine("Use:" + (DateTime.Now - dt).TotalMilliseconds);
+            }
+            */
+
+
+
+
+            test.Close();
+
+            /*
+            for (int i = 0; i < 1000; i++) {
+
+                ThreadPool.QueueUserWorkItem(new WaitCallback(run), 1);
+
+            }
+            */
+
+            Console.ReadLine();
+        }
+
+        private static void run(object arg)
+        {
+
+            Dictionary<short, string> row = new Dictionary<short, string>();
+
+            row.Add(1, "test1");
+            row.Add(2, "test2");
+            row.Add(3, "test3");
+
+            for (int j = 0; j < 1; j++)
             {
                 DateTime dt = DateTime.Now;
                 for (int i = 0; i < 10000; i++)
@@ -117,16 +164,17 @@ namespace Client
                     // test.testI32(33);
                     // test.testMap(new Dictionary<int, int> { { 1, 3 }, { 3, 5 } });
                     // test.testStruct();
-                    
-                    test.testMulti(0, 1, 2, row, Thrift.Test.Numberz.FIVE, 5);
+
+                    TestThrift test2 = new TestThrift();
+
+                    test2.testMulti(0, 1, 2, row, Thrift.Test.Numberz.FIVE, 5);
+                    // test2.testI32(33);
+                    test2.Close();
+
                 }
                 Console.WriteLine("Use:" + (DateTime.Now - dt).TotalMilliseconds);
             }
-
-
-            test.transport.Close();
-
-            Console.ReadLine();
         }
+
     }
 }
