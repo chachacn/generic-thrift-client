@@ -52,7 +52,7 @@ namespace Server.Impl
 
         public int testI32(int thing)
         {
-            // Console.WriteLine("testI32:" + thing.ToString());
+            Console.WriteLine("testI32:" + thing.ToString());
 
             return thing;
         }
