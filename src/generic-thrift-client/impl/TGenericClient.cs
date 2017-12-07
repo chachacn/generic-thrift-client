@@ -76,6 +76,7 @@ namespace generic_thrift_client.impl
             //TODO:如果是集合情况也应该是这样处理
             if (genericTree != null && !isPrimitiveType(genericTree))
             {
+                if (result.Count == 0) return null;
                 object obj = result[genericTree.getName()];
                 return obj;
             }
@@ -258,18 +259,21 @@ namespace generic_thrift_client.impl
         {
             TField schemeField;
             iprot.ReadStructBegin();
+
             //每一层的参数 按顺序逐个进行遍历 读取二进制序列返回值
             bool isStop = false;
             foreach (GenericTree genericTreeTmp in genericTrees)
             {
                 GenericTree genericTree = new GenericTree();
+                
                 schemeField = iprot.ReadFieldBegin();
                 if (schemeField.Type == TType.Stop)
                 {
-                    Console.WriteLine("返回结果参数个数不对！ type : stop 返回值可能为null");
+                    // Console.WriteLine("返回结果参数个数不对！ type : stop 返回值可能为null");
                     isStop = true;
                     break;
                 }
+
                 if (genericTrees.Count > 1)
                 {
                     genericTree = genericTrees[schemeField.ID - 1];
